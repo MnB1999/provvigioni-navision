@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+*.xlsx
+PYTHON.MD
+README.MD
+test_fattura.py

@@ -165,7 +165,7 @@ class Applicazione:
 
 
 def main() -> None:
-    """Errore non gestito in finestra"""
+    """Eventuale errore non gestito in finestra"""
     try:
         for cartella in (config.INBOX, config.SCARTATI, config.OUTPUT):
             cartella.mkdir(parents=True, exist_ok=True)

@@ -8,4 +8,4 @@ INBOX = BASE / "File da lavorare"   # qui l'operatore salva gli export Excel di 
 SCARTATI = BASE / "File scartati"   # file non validi o duplicati (il motivo compare a video)
 OUTPUT = BASE / "File lavorati"     # una sottocartella per ogni elaborazione completata
 
-POLL_MS = 1000  # ogni quanti millisecondi l'app controlla la cartella inbox
+POLL_MS = 500  # ogni quanti millisecondi l'app controlla la cartella inbox

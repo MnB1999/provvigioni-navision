@@ -17,6 +17,6 @@ powershell -NoProfile -ExecutionPolicy Bypass -Command ^
  "$lnk.IconLocation='%PROGETTO%\icona.ico,0';" ^
  "$lnk.Description='Generatore Excel provvigioni';" ^
  "$lnk.Save();" ^
- "Write-Host 'Collegamento creato sul desktop: Generatore Excel provvigioni'"
+ "Write-Host 'Collegamento creato sul desktop con nome: Generatore Excel provvigioni'"
 
 pause

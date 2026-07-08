@@ -3,7 +3,7 @@ Il programma prende in input uno o più file Excel generati da Navision e li tra
 
 Durante l'elaborazione:
 
-mantiene esclusivamente il foglio "Visualizzazione - Fatture vend";
+mantiene esclusivamente il foglio "Visualizzazione - Fatture vend" che è l'unico foglio che serve, Navision genera i .xlxs con le stesse caratteristiche;
 
 elimina tutti gli altri fogli presenti nel file;
 

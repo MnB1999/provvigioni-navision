@@ -90,7 +90,7 @@ def test_errori(tmp: Path) -> None:
 
     p4 = tmp / "senza_agente.xlsx"
     crea_export(p4, "26/000005", "CLIENTE", "", [RIGA_ELIO])
-    _si_aspetta_errore(p4, "Cod. agente")
+    assert leggi_fattura(p4).numero == "26/000005"
 
     p5 = tmp / "non_excel.xlsx"
     p5.write_text("questo non è un xlsx")

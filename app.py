@@ -1,6 +1,6 @@
-"""Applicazione Provvigioni Navision.
+"""Applicazione per calcolo Provvigioni da Navision.
 
-All'avvio crea le cartelle di lavoro e controlla la inbox ogni 2 secondi.
+All'avvio crea le cartelle di lavoro e controlla la inbox ogni secondo.
 Ogni export di fattura salvato nella inbox viene letto, validato e mostrato in tabella.
 I file non validi o duplicati finiscono in "scartati", con il motivo a video.
 Il pulsante "Genera file provvigioni" scrive un unico file Excel intitolato
@@ -30,15 +30,15 @@ class Applicazione:
         self._costruisci_interfaccia()
         self.root.after(config.POLL_MS, self._controlla_inbox)
 
-    # ------------------------------------------------------------ interfaccia
+    # Interfaccia applicazione
 
     def _costruisci_interfaccia(self) -> None:
-        self.root.title("Provvigioni Navision")
+        self.root.title("Calcolo Provvigioni")
         self.root.geometry("1000x560")
 
         istruzioni = (
             f"1. In Navision apri la fattura in Excel e salva il file in:  {config.INBOX}\n"
-            "2. Ripeti per tutte le fatture del trimestre, di tutti gli agenti, in qualsiasi ordine.\n"
+            "2. Ripeti per tutte le fatture del trimestre, di un singolo agente, in qualsiasi ordine, poi inserisci il nome agente.\n"
             "3. Le fatture acquisite compaiono qui sotto. Al termine premi \u00abGenera file provvigioni\u00bb."
         )
         tk.Label(self.root, text=istruzioni, justify="left", anchor="w", padx=10, pady=8).pack(fill="x")
@@ -46,8 +46,7 @@ class Applicazione:
         colonne = [
             ("numero", "Fattura", 110),
             ("data", "Data", 90),
-            ("agente", "Agente", 80),
-            ("cliente", "Cliente", 380),
+            ("cliente", "Cliente", 460),
             ("stato", "Stato", 280),
         ]
         self.tabella = ttk.Treeview(self.root, columns=[c[0] for c in colonne], show="headings")
@@ -68,7 +67,7 @@ class Applicazione:
         tk.Entry(barra, textvariable=self.nome_agente, width=24).pack(side="right", padx=(4, 10))
         tk.Label(barra, text="Nome agente:").pack(side="right")
 
-    # -------------------------------------------------------- acquisizione
+    # Acquisizione fatture
 
     def _controlla_inbox(self) -> None:
         """Un file viene letto solo quando dimensione e data di modifica restano
@@ -103,7 +102,6 @@ class Applicazione:
         self.tabella.insert("", "end", values=(
             fattura.numero,
             fattura.data_documento.strftime("%d/%m/%Y"),
-            fattura.codice_agente,
             fattura.cliente,
             "acquisita",
         ))
@@ -122,7 +120,7 @@ class Applicazione:
 
     def _aggiorna_contatore(self) -> None:
         agenti = {f.codice_agente for f in self.fatture.values()}
-        self.contatore.config(text=f"Fatture acquisite: {len(self.fatture)}  •  Agenti: {len(agenti)}")
+        self.contatore.config(text=f"Fatture acquisite: {len(self.fatture)}")
         self._aggiorna_pulsante()
 
     def _aggiorna_pulsante(self) -> None:
@@ -167,7 +165,7 @@ class Applicazione:
 
 
 def main() -> None:
-    """Errore in finestra"""
+    """Errore non gestito in finestra"""
     try:
         for cartella in (config.INBOX, config.SCARTATI, config.OUTPUT):
             cartella.mkdir(parents=True, exist_ok=True)

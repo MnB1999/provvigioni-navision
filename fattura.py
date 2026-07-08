@@ -1,7 +1,7 @@
 """Lettura e validazione di un export fattura generato da Navision.
 
 Un export valido è un file .xlsx che contiene almeno:
-- il foglio "Generale" con i valori Nr., Cliente, Data documento, Codice Agente;
+- il foglio "Generale" con i valori Nr., Cliente, Data documento;
 - il foglio "Visualizzazione - Fatture vend" con le intestazioni attese in riga 2.
 
 Dalle righe fattura si tengono solo:
@@ -46,7 +46,6 @@ class Fattura:
     numero: str
     cliente: str
     data_documento: date
-    codice_agente: str
     righe: tuple[Riga, ...]
 
 
@@ -60,16 +59,16 @@ def leggi_fattura(percorso: Path) -> Fattura:
         for foglio in (FOGLIO_GENERALE, FOGLIO_RIGHE):
             if foglio not in wb.sheetnames:
                 raise FatturaNonValida(f"manca il foglio '{foglio}' (trovati: {', '.join(wb.sheetnames)})")
-        numero, cliente, data_documento, codice_agente = _leggi_generale(wb[FOGLIO_GENERALE])
+        numero, cliente, data_documento = _leggi_generale(wb[FOGLIO_GENERALE])
         righe = _leggi_righe(wb[FOGLIO_RIGHE])
     finally:
         wb.close()
     if not any(riga.importo is not None for riga in righe):
         raise FatturaNonValida("nessuna riga con importo nella colonna J")
-    return Fattura(numero, cliente, data_documento, codice_agente, tuple(righe))
+    return Fattura(numero, cliente, data_documento, tuple(righe))
 
 
-def _leggi_generale(ws) -> tuple[str, str, date, str]:
+def _leggi_generale(ws) -> tuple[str, str, date]:
     """Estrae dal foglio 'Generale' (coppie chiave-valore in colonne A e B) i quattro campi richiesti."""
     valori: dict[str, object] = {}
     for riga in ws.iter_rows(min_col=1, max_col=2, values_only=True):
@@ -91,7 +90,6 @@ def _leggi_generale(ws) -> tuple[str, str, date, str]:
         str(valori["Nr."]).strip(),
         str(valori["Cliente"]).strip(),
         data.date(),
-        str(valori["Cod. agente"]).strip(),
     )
 
 

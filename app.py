@@ -36,7 +36,7 @@ class Applicazione:
         self.root.geometry("1000x560")
 
         istruzioni = (
-            f"1. In Navision apri la fattura in Excel e salva il file nel formato .XLXS in:  {config.INBOX}\n"
+            f"1. In Navision apri la fattura in Excel e salva il file in:  {config.INBOX}\n"
             "2. Ripeti per tutte le fatture del trimestre, di tutti gli agenti, in qualsiasi ordine.\n"
             "3. Le fatture acquisite compaiono qui sotto. Al termine premi \u00abGenera file provvigioni\u00bb."
         )
@@ -68,7 +68,7 @@ class Applicazione:
     def _controlla_inbox(self) -> None:
         """Un file viene letto solo quando dimensione e data di modifica restano
         uguali tra due controlli consecutivi: così non si legge un file che
-        Citrix sta ancora copiando."""
+        l'utente sta ancora salvando nella cartella INBOX."""
         try:
             for percorso in sorted(config.INBOX.glob("*.xlsx")):
                 nome = percorso.name
@@ -124,7 +124,15 @@ class Applicazione:
 
     def _genera(self) -> None:
         cartella = config.OUTPUT / datetime.now().strftime("%Y-%m-%d_%H%M%S")
-        creati = scrivi_provvigioni(list(self.fatture.values()), cartella)
+        try:
+            creati = scrivi_provvigioni(list(self.fatture.values()), cartella)
+        except ValueError as errore:
+            messagebox.showerror(
+                "Generazione non riuscita",
+                f"{errore}\n\nLe fatture restano in inbox: dopo la correzione "
+                "riavvia l'app e verranno riacquisite.",
+            )
+            return
 
         originali = cartella / "originali"
         originali.mkdir()

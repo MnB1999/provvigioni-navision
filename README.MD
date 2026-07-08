@@ -15,6 +15,7 @@ ordina automaticamente le informazioni raggruppandole per cliente e fattura;
 
 genera un file Excel finale con una tabella ottimizzata per il calcolo provvigionale.
 
+
 Compatibilità
 
 Il programma funziona sia con:
@@ -22,3 +23,8 @@ Il programma funziona sia con:
 file Excel scaricati direttamente da Navision tramite Citrix;
 
 file .xlsx copiati o spostati manualmente nella cartella INBOX.
+
+
+Questo strumento è utilizzato da colleghi non tecnici, dunque era importante che fosse facile da installare e utilizzare.
+
+Nel README sarà presente anche una guida (di un paio di step) per l'installazione, l'avvio e l'utilizzo

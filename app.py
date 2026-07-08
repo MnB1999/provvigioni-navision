@@ -3,8 +3,9 @@
 All'avvio crea le cartelle di lavoro e controlla la inbox ogni 2 secondi.
 Ogni export di fattura salvato nella inbox viene letto, validato e mostrato in tabella.
 I file non validi o duplicati finiscono in "scartati", con il motivo a video.
-Il pulsante "Genera file provvigioni" scrive un file Excel per agente e archivia
-gli export originali nella stessa cartella di output, sotto "originali".
+Il pulsante "Genera file provvigioni" scrive un unico file Excel intitolato
+al nome agente inserito nel form e archivia gli export originali nella stessa
+cartella di output, sotto "originali".
 """
 import os
 import re
@@ -62,6 +63,10 @@ class Applicazione:
         self.contatore.pack(side="left")
         self.pulsante = tk.Button(barra, text="Genera file provvigioni", state="disabled", command=self._genera)
         self.pulsante.pack(side="right")
+        self.nome_agente = tk.StringVar()
+        self.nome_agente.trace_add("write", lambda *_: self._aggiorna_pulsante())
+        tk.Entry(barra, textvariable=self.nome_agente, width=24).pack(side="right", padx=(4, 10))
+        tk.Label(barra, text="Nome agente:").pack(side="right")
 
     # -------------------------------------------------------- acquisizione
 
@@ -118,14 +123,18 @@ class Applicazione:
     def _aggiorna_contatore(self) -> None:
         agenti = {f.codice_agente for f in self.fatture.values()}
         self.contatore.config(text=f"Fatture acquisite: {len(self.fatture)}  •  Agenti: {len(agenti)}")
-        self.pulsante.config(state="normal" if self.fatture else "disabled")
+        self._aggiorna_pulsante()
 
-    # -------------------------------------------------------- generazione
+    def _aggiorna_pulsante(self) -> None:
+        """Il pulsante si abilita solo con almeno una fattura e il nome agente compilato."""
+        pronto = bool(self.fatture) and bool(self.nome_agente.get().strip())
+        self.pulsante.config(state="normal" if pronto else "disabled")
+
 
     def _genera(self) -> None:
         cartella = config.OUTPUT / datetime.now().strftime("%Y-%m-%d_%H%M%S")
         try:
-            creati = scrivi_provvigioni(list(self.fatture.values()), cartella)
+            creato = scrivi_provvigioni(list(self.fatture.values()), cartella, self.nome_agente.get())
         except ValueError as errore:
             messagebox.showerror(
                 "Generazione non riuscita",
@@ -149,19 +158,27 @@ class Applicazione:
             self.tabella.delete(riga)
         self._aggiorna_contatore()
 
+        self.nome_agente.set("")
         messagebox.showinfo(
             "Elaborazione completata",
-            f"Elaborate {quante} fatture.\nCreati {len(creati)} file provvigioni in:\n{cartella}",
+            f"Elaborate {quante} fatture.\nCreato il file provvigioni:\n{creato}",
         )
         os.startfile(cartella)
 
 
 def main() -> None:
-    for cartella in (config.INBOX, config.SCARTATI, config.OUTPUT):
-        cartella.mkdir(parents=True, exist_ok=True)
-    root = tk.Tk()
-    Applicazione(root)
-    root.mainloop()
+    """Errore in finestra"""
+    try:
+        for cartella in (config.INBOX, config.SCARTATI, config.OUTPUT):
+            cartella.mkdir(parents=True, exist_ok=True)
+        root = tk.Tk()
+        Applicazione(root)
+        root.mainloop()
+    except Exception:
+        import traceback
+        tk.Tk().withdraw()
+        messagebox.showerror("Provvigioni Navision - errore", traceback.format_exc())
+        raise
 
 
 if __name__ == "__main__":

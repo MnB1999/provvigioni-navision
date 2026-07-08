@@ -1,7 +1,7 @@
 """Lettura e validazione di un export fattura generato da Navision.
 
 Un export valido è un file .xlsx che contiene almeno:
-- il foglio "Generale" con i valori Nr., Cliente, Data documento, Cod. agente;
+- il foglio "Generale" con i valori Nr., Cliente, Data documento, Codice Agente;
 - il foglio "Visualizzazione - Fatture vend" con le intestazioni attese in riga 2.
 
 Dalle righe fattura si tengono solo:
@@ -36,9 +36,9 @@ class FatturaNonValida(ValueError):
 class Riga:
     tipo: str            # colonna A ("" per le righe DDT)
     descrizione: str     # colonna D
-    quantita: float | None  # colonna F (openpyxl può restituire int o float)
+    quantita: float | None  # colonna F
     unita_misura: str    # colonna G
-    importo: float | None   # colonna J (None solo per le righe DDT)
+    importo: float | None   # colonna J ("None" solo per le righe DDT)
 
 
 @dataclass(frozen=True)

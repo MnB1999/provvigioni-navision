@@ -155,22 +155,28 @@ def test_scrittura(tmp: Path) -> None:
     sorgenti = tmp / "sorgenti"
     sorgenti.mkdir()
     dati = [
-        # (numero, cliente, agente, righe) — ordine di arrivo volutamente mescolato
-        ("26/000030", "BETA SRL", "GCS", [RIGA_NOLO]),
-        ("26/000010", "ALFA SPA", "GCS", [RIGA_DDT, RIGA_ELIO]),
-        ("26/000020", "ALFA SPA", "GCS", [RIGA_NOLO]),
-        ("26/000040", "GAMMA SNC", "MRA", [RIGA_ELIO]),
+        # (numero, cliente, righe) — ordine di arrivo volutamente mescolato
+        ("26/000030", "BETA SRL", [RIGA_NOLO]),
+        ("26/000010", "ALFA SPA", [RIGA_DDT, RIGA_ELIO]),
+        ("26/000020", "ALFA SPA", [RIGA_NOLO]),
     ]
     fatture = []
-    for indice, (numero, cliente, agente, righe) in enumerate(dati):
+    for indice, (numero, cliente, righe) in enumerate(dati):
         percorso = sorgenti / f"f{indice}.xlsx"
-        crea_export(percorso, numero, cliente, agente, righe)
+        crea_export(percorso, numero, cliente, "GCS", righe)
         fatture.append(leggi_fattura(percorso))
 
     uscita = tmp / "output"
-    creati = scrivi_provvigioni(fatture, uscita)
-    nomi = sorted(p.name for p in creati)
-    assert nomi == ["Provvigioni_GCS.xlsx", "Provvigioni_MRA.xlsx"], nomi
+    creato = scrivi_provvigioni(fatture, uscita, "GCS")
+    assert creato.name == "Provvigioni_GCS.xlsx", creato.name
+
+    # il nome agente è quello inserito dall'operatore, non il codice rilevato
+    try:
+        scrivi_provvigioni(fatture, uscita, "   ")
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("atteso ValueError per nome agente vuoto")
 
     ws = load_workbook(uscita / "Provvigioni_GCS.xlsx")["GCS"]
 
@@ -196,10 +202,10 @@ def test_scrittura(tmp: Path) -> None:
     tabella = {ws[f"B{r}"].value: (ws[f"C{r}"].value, ws[f"D{r}"].value, ws[f"E{r}"].value)
                for r in range(17, 26)}
     attesa = {
-        "Gas tecnici": (0, 0, "=D17*C17"),
+        "Gas tecnici": (0, "=SUM(E3)", "=D17*C17"),
         "Elio forza maggiore": (0, 0, "=D18*C18"),
         "Gas refrigeranti, smaltimento refrigeranti e propano": (0, 0, "=D19*C19"),
-        "Gas alimentari e puri": (0, "=SUM(E3)", "=D20*C20"),
+        "Gas alimentari e puri": (0, 0, "=D20*C20"),
         "Adr": (0, 0, "=D21*C21"),
         "Trasporto": (0, 0, "=D22*C22"),
         "Aqs e addizionali vari": (0, 0, "=D23*C23"),
@@ -216,7 +222,7 @@ def test_intervalli_consecutivi(tmp: Path) -> None:
     percorso = tmp / "consecutive.xlsx"
     crea_export(percorso, "26/000050", "DELTA SRL", "GCS", [RIGA_NOLO, RIGA_NOLO, RIGA_NOLO])
     uscita = tmp / "output_intervalli"
-    scrivi_provvigioni([leggi_fattura(percorso)], uscita)
+    scrivi_provvigioni([leggi_fattura(percorso)], uscita, "GCS")
     ws = load_workbook(uscita / "Provvigioni_GCS.xlsx")["GCS"]
     formule = {ws[f"B{r}"].value: ws[f"D{r}"].value for r in range(12, 21)}
     assert formule["Nolo e RMR"] == "=SUM(E2:E4)", formule["Nolo e RMR"]
@@ -227,7 +233,7 @@ def test_descrizione_sconosciuta(tmp: Path) -> None:
     crea_export(percorso, "26/000060", "EPSILON SRL", "GCS", [RIGA_IGNOTA])
     fattura = leggi_fattura(percorso)
     try:
-        scrivi_provvigioni([fattura], tmp / "output_ignota")
+        scrivi_provvigioni([fattura], tmp / "output_ignota", "GCS")
     except VoceNonClassificabile as errore:
         assert "PRODOTTO MISTERIOSO" in str(errore)
         assert "classificazione.py" in str(errore)

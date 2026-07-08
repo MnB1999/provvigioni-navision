@@ -1,4 +1,4 @@
-"""Scrittura dei file provvigioni: un file Excel per ogni agente.
+"""Scrittura del file provvigioni: un unico file Excel per l'agente indicato.
 
 Ogni file contiene due parti:
 
@@ -37,21 +37,15 @@ RIGHE_VUOTE_PRIMA_DELLA_TABELLA = 6
 LIMITE_ARGOMENTI_SUM = 255  # limite di Excel
 
 
-def scrivi_provvigioni(fatture: list[Fattura], cartella: Path) -> list[Path]:
-    """Raggruppa le fatture per agente e scrive un file per agente nella cartella. Restituisce i percorsi creati."""
+def scrivi_provvigioni(fatture: list[Fattura], cartella: Path, agente: str) -> Path:
+    """Scrive un unico file provvigioni con tutte le fatture, intitolato all'agente indicato. Restituisce il percorso creato."""
     if not fatture:
         raise ValueError("nessuna fattura da elaborare")
+    if not agente.strip():
+        raise ValueError("il nome dell'agente è vuoto")
     _verifica_classificazione(fatture)
     cartella.mkdir(parents=True, exist_ok=True)
-
-    per_agente: dict[str, list[Fattura]] = defaultdict(list)
-    for fattura in fatture:
-        per_agente[fattura.codice_agente].append(fattura)
-
-    return [
-        _scrivi_file_agente(agente, per_agente[agente], cartella)
-        for agente in sorted(per_agente)
-    ]
+    return _scrivi_file_agente(agente.strip(), fatture, cartella)
 
 
 def _verifica_classificazione(fatture: list[Fattura]) -> None:

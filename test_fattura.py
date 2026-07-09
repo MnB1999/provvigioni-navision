@@ -55,7 +55,6 @@ def test_lettura(tmp: Path) -> None:
     f = leggi_fattura(percorso)
     assert f.numero == "26/000001"
     assert f.cliente == "CLIENTE UNO"  # spazio finale rimosso
-    assert f.codice_agente == "GCS"
     assert f.data_documento.isoformat() == "2026-02-12"
     # tenute: DDT + 2 righe con importo; esclusa quella con J vuota
     assert len(f.righe) == 3

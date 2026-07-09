@@ -20,10 +20,16 @@ VOCI = (
     "Nolo e RMR",
 )
 
+# Voce speciale per le righe di adeguamento FGAS: viene riconosciuta (nessun errore
+# di regola inesistente) ma, non essendo elencata in VOCI, non entra nella tabella
+# provvigioni. Viene invece sommata a parte da genera_excel.py.
+VOCE_ADEGUAMENTO_FGAS = "Adeguamento fgas"
+
 # (voce, prefissi, parole): la descrizione (in maiuscolo) appartiene alla voce solo
 # se inizia con uno dei prefissi oppure contiene una delle parole intere.
 # Una voce può comparire più volte per gestire le eccezioni con l'ordine.
 REGOLE = (
+    (VOCE_ADEGUAMENTO_FGAS, (), ("ADEGUAMENTO",)),
     ("Aqs e addizionali vari", ("ADDIZIONALE", "ADEMPIMENTI", "CONTRIBUTO ENERGIA"), ()),
     ("Adr", (), ("ADR",)),
     ("Trasporto", ("TRASPORTO",), ()),

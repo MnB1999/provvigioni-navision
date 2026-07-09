@@ -5,8 +5,8 @@ Un export valido è un file .xlsx che contiene almeno:
 - il foglio "Visualizzazione - Fatture vend" con le intestazioni attese in riga 2.
 
 Dalle righe fattura si tengono solo:
-- le righe con un valore nella colonna J (Importo riga IVA esclusa);
-- le righe "DDT Nr. ..." (colonna D), che non hanno importo ma vanno nel file finale.
+- le righe con un valore nella colonna "Importo riga IVA esclusa";
+- le righe "DDT Nr. ..." (colonna "Descrizione"), che non hanno importo ma vanno nel file finale.
 """
 from dataclasses import dataclass
 from datetime import date, datetime
@@ -17,15 +17,9 @@ from openpyxl import load_workbook
 FOGLIO_GENERALE = "Generale"
 FOGLIO_RIGHE = "Visualizzazione - Fatture vend"
 
-# Colonna (1 = A) -> testo atteso nella riga 2 del foglio righe.
-# Se Navision cambia layout, la lettura si ferma qui con un errore esplicito.
-INTESTAZIONI_ATTESE = {
-    1: "Tipo",
-    4: "Descrizione",
-    6: "Quantità",
-    7: "Cod. unità di misura",
-    10: "Importo riga IVA esclusa",
-}
+# Nomi delle colonne richieste nella riga 2 del foglio righe. Vengono cercate per nome,
+# non per posizione perché le nostre utenze Citrix generano le colonne in ordine diverso
+COLONNE_ATTESE = ("Tipo", "Descrizione", "Quantità", "Cod. unità di misura", "Importo riga IVA esclusa")
 
 
 class FatturaNonValida(ValueError):
@@ -34,11 +28,11 @@ class FatturaNonValida(ValueError):
 
 @dataclass(frozen=True)
 class Riga:
-    tipo: str            # colonna A ("" per le righe DDT)
-    descrizione: str     # colonna D
-    quantita: float | None  # colonna F
-    unita_misura: str    # colonna G
-    importo: float | None   # colonna J ("None" solo per le righe DDT)
+    tipo: str            # colonna "Tipo" ("" per le righe DDT)
+    descrizione: str     # colonna "Descrizione"
+    quantita: float | None  # colonna "Quantità"
+    unita_misura: str    # colonna "Cod. unità di misura"
+    importo: float | None   # colonna "Importo riga IVA esclusa" ("None" solo per le righe DDT)
 
 
 @dataclass(frozen=True)
@@ -93,31 +87,40 @@ def _leggi_generale(ws) -> tuple[str, str, date]:
     )
 
 
+def _trova_colonne(intestazione: tuple) -> dict[str, int]:
+    """Cerca nella riga di intestazione l'indice di ciascuna colonna richiesta, per nome."""
+    indici = {nome: intestazione.index(nome) for nome in COLONNE_ATTESE if nome in intestazione}
+    mancanti = [nome for nome in COLONNE_ATTESE if nome not in indici]
+    if mancanti:
+        raise FatturaNonValida(f"intestazioni mancanti nel foglio righe: {', '.join(mancanti)}")
+    return indici
+
+
 def _leggi_righe(ws) -> list[Riga]:
-    """Legge le righe fattura, verificando prima le intestazioni in riga 2."""
+    """Legge le righe fattura, individuando le colonne richieste dai nomi presenti in riga 2."""
     righe: list[Riga] = []
-    intestazione_verificata = False
+    colonne: dict[str, int] | None = None
     for riga in ws.iter_rows(min_row=2, values_only=True):
-        if len(riga) < 10:
-            riga = riga + (None,) * (10 - len(riga))
-        if not intestazione_verificata:
-            for colonna, atteso in INTESTAZIONI_ATTESE.items():
-                trovato = riga[colonna - 1]
-                if trovato != atteso:
-                    raise FatturaNonValida(
-                        f"intestazione inattesa nel foglio righe, colonna {colonna}: "
-                        f"{trovato!r} invece di {atteso!r}"
-                    )
-            intestazione_verificata = True
+        if colonne is None:
+            colonne = _trova_colonne(riga)
             continue
 
-        tipo, descrizione, quantita, unita, importo = riga[0], riga[3], riga[5], riga[6], riga[9]
+        larghezza = max(colonne.values()) + 1
+        if len(riga) < larghezza:
+            riga = riga + (None,) * (larghezza - len(riga))
+
+        tipo = riga[colonne["Tipo"]]
+        descrizione = riga[colonne["Descrizione"]]
+        quantita = riga[colonne["Quantità"]]
+        unita = riga[colonne["Cod. unità di misura"]]
+        importo = riga[colonne["Importo riga IVA esclusa"]]
+
         testo = str(descrizione).strip() if descrizione is not None else ""
         if importo is not None:
             righe.append(Riga(str(tipo or "").strip(), testo, quantita, str(unita or "").strip(), importo))
         elif testo.startswith("DDT"):
             righe.append(Riga("", testo, None, "", None))
 
-    if not intestazione_verificata:
+    if colonne is None:
         raise FatturaNonValida("il foglio delle righe è vuoto")
     return righe

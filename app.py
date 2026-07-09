@@ -119,7 +119,6 @@ class Applicazione:
         )
 
     def _aggiorna_contatore(self) -> None:
-        agenti = {f.codice_agente for f in self.fatture.values()}
         self.contatore.config(text=f"Fatture acquisite: {len(self.fatture)}")
         self._aggiorna_pulsante()
 

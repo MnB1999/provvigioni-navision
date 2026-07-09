@@ -21,7 +21,7 @@ from pathlib import Path
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Border, Font, Side
 
-from classificazione import VOCI, VoceNonClassificabile, voce_per
+from classificazione import VOCE_ADEGUAMENTO_FGAS, VOCI, VoceNonClassificabile, voce_per
 from fattura import Fattura
 
 CARATTERE_TITOLO = Font(name="Arial", size=12, bold=True)
@@ -34,6 +34,7 @@ FORMATO_EURO = '#,##0.00\\ "€"'
 FORMATO_PERCENTO = "0.00%"
 LARGHEZZE_COLONNE = {"A": 12, "B": 52, "C": 12, "D": 12, "E": 13}
 RIGHE_VUOTE_PRIMA_DELLA_TABELLA = 6
+RIGHE_TRA_TOTALE_E_ADEGUAMENTO = 5
 LIMITE_ARGOMENTI_SUM = 255  # limite di Excel
 
 
@@ -143,6 +144,21 @@ def _scrivi_tabella_calcolo(ws, righe_per_voce: dict[str, list[int]]) -> None:
     ws[f"D{riga}"].value = "totale:"
     ws[f"D{riga}"].font = CARATTERE_TABELLA
     ws[f"E{riga}"].value = f"=SUM(E{prima_voce}:E{riga - 1})"
+    ws[f"E{riga}"].number_format = FORMATO_EURO
+    ws[f"E{riga}"].font = CARATTERE_TABELLA
+
+    _scrivi_riga_adeguamento_fgas(ws, righe_per_voce, riga)
+
+
+def _scrivi_riga_adeguamento_fgas(ws, righe_per_voce: dict[str, list[int]], riga_totale: int) -> None:
+    """Riga a parte, fuori dalla tabella provvigioni, con il totale delle righe di adeguamento FGAS."""
+    riga = riga_totale + RIGHE_TRA_TOTALE_E_ADEGUAMENTO
+    righe = righe_per_voce.get(VOCE_ADEGUAMENTO_FGAS, [])
+    importo = _formula_somma(righe) if righe else 0
+
+    ws[f"D{riga}"].value = "totale adeguamento fgas"
+    ws[f"D{riga}"].font = CARATTERE_TABELLA
+    ws[f"E{riga}"].value = importo
     ws[f"E{riga}"].number_format = FORMATO_EURO
     ws[f"E{riga}"].font = CARATTERE_TABELLA
 

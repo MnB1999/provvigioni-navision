@@ -5,3 +5,4 @@ PYTHON.MD
 notes.MD
 .venv/
 .idea/
+*.egg-info/

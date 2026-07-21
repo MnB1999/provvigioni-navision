@@ -12,9 +12,9 @@ from pathlib import Path
 
 from openpyxl import Workbook, load_workbook
 
-from classificazione import VoceNonClassificabile, voce_per
-from fattura import FatturaNonValida, leggi_fattura
-from genera_excel import scrivi_provvigioni
+from provvigioni_navision.config.classificazione import VoceNonClassificabile, voce_per
+from provvigioni_navision.main.fattura import FatturaNonValida, leggi_fattura
+from provvigioni_navision.main.genera_excel import scrivi_provvigioni
 
 INTESTAZIONI = [
     "Tipo", "Nr.", "Includi in report transazioni IVA", "Descrizione",
@@ -136,7 +136,7 @@ def test_classificazione() -> None:
         for descrizione in descrizioni:
             trovata = voce_per(descrizione)
             assert trovata == voce, f"{descrizione!r}: attesa {voce!r}, trovata {trovata!r}"
-    # gradi di purezza: qualunque gas con 5.0/5.5/6.0 è "puro", salvo AZOTO 5.0 e ELIO 5.0
+    # gradi di purezza: qualunque gas con 5.0/5.5/6.0 è "puro", salvo AZOTO 5.0 ed ELIO 5.0
     assert voce_per("ARGON 6.0 Bombola PICCOLA") == "Gas alimentari e puri"
     assert voce_per("IDROGENO 5.5 Bombola GRANDE") == "Gas alimentari e puri"
     assert voce_per("OSSIGENO 6.0 Bombola MEDIA") == "Gas alimentari e puri"

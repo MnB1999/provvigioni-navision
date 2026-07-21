@@ -1,30 +1,32 @@
+Nel presente README sono incluse le istruzioni da fornire ai miei colleghi per installare e avviare l'applicazione
 # provvigioni-navision
 Il programma prende in input uno o più file Excel generati da Navision e li trasforma in un formato più leggibile e adatto al calcolo delle provvigioni.
 
-Durante l'elaborazione:
-
-mantiene esclusivamente il foglio "Visualizzazione - Fatture vend" che è l'unico foglio che serve, Navision genera i .xlxs con le stesse caratteristiche;
-
-elimina tutti gli altri fogli presenti nel file;
-
-conserva solamente le colonne con tipologia prodotto, quantità e importo fatturato;
-
-rimuove le righe prive di importo (fatturate a zero);
-
-ordina automaticamente le informazioni raggruppandole per cliente e fattura;
-
-genera un file Excel finale con una tabella ottimizzata per il calcolo provvigionale.
-
-
-Compatibilità
-
-Il programma funziona sia con:
-
+Legge e modifica:
 file Excel scaricati direttamente da Navision tramite Citrix;
+file .xlsx copiati o spostati manualmente nella cartella di INBOX (purché siano sempre quelli generati da Navision).
 
-file .xlsx copiati o spostati manualmente nella cartella di INBOX.
+## Installazione (una sola volta, per ogni PC)
+
+1. Installa Python 3.10 o versioni seguenti da python.org con il launcher `py`
+2. Copia la cartella del progetto sul PC.
+2. Apri PowerShell nella cartella del progetto ed esegui uno dopo l'altro i seguenti comandi:
+
+py -m venv .venv
+.venv\Scripts\pip install -e
+
+3. Fai doppio clic su `crea_collegamento.bat` poi segui le istruzioni.
+
+   Vedrai ora sul desktop "Generatore Excel provvigioni" con la sua icona (simbolo € bianco su sfondo verde).
+
+Da quel momento l'app si avvia con doppio clic sul collegamento come ogni altra applicazione.
+
+## Utilizzo
+
+1. Avvia l'applicazione
+2. Salva gli export Navision nella cartella indicata a schermo dall'applicazione, le fatture compariranno poi a schermo
+2. Scrivi il nome dell'agente nel campo "Nome agente" (il pulsante si abilita solo quando c'è almeno una fattura).
+3. Premi "Genera file provvigioni": viene creato un unico file `Provvigioni_<nome inserito>.xlsx` con tutte le fatture acquisite.
 
 
-Questo strumento è utilizzato da colleghi non tecnici, dunque era importante che fosse facile da installare e utilizzare.
-
-Nel README sarà presente anche una guida (di un paio di step) per l'installazione, l'avvio e l'utilizzo
+Note per gli sviluppatori: questo strumento è utilizzato da colleghi non tecnici, dunque era importante che fosse facile da installare e utilizzare.

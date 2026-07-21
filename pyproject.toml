@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "provvigioni-navision"
+version = "1.0.0"
+description = "Trasforma gli export Excel di Navision in un file provvigioni pronto per il calcolo."
+requires-python = ">=3.10"
+dependencies = [
+    "openpyxl==3.1.5",
+]
+
+[project.gui-scripts]
+provvigioni-navision = "provvigioni_navision.main.app:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

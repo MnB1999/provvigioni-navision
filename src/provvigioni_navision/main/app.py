@@ -15,9 +15,9 @@ from pathlib import Path
 import tkinter as tk
 from tkinter import messagebox, ttk
 
-import config.config
-from fattura import Fattura, FatturaNonValida, leggi_fattura
-from genera_excel import scrivi_provvigioni
+from ..config import config
+from .fattura import Fattura, FatturaNonValida, leggi_fattura
+from .genera_excel import scrivi_provvigioni
 
 
 class Applicazione:

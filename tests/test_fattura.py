@@ -1,11 +1,3 @@
-"""Test della pipeline senza interfaccia grafica.
-
-Crea export finti con la stessa struttura di quelli di Navision
-e verifica lettura, validazione, classificazione e scrittura dei file
-provvigioniali con la tabella di calcolo.
-
-Esecuzione:  py test_fattura.py
-"""
 import tempfile
 from datetime import datetime
 from pathlib import Path
@@ -81,7 +73,7 @@ def test_errori(tmp: Path) -> None:
     diverse = INTESTAZIONI.copy()
     diverse[9] = "Importo totale"
     crea_export(p2, "26/000003", "CLIENTE", "GCS", [RIGA_ELIO], intestazioni=diverse)
-    _si_aspetta_errore(p2, "intestazione inattesa")
+    _si_aspetta_errore(p2, "intestazioni mancanti")
 
     p3 = tmp / "senza_importi.xlsx"
     crea_export(p3, "26/000004", "CLIENTE", "GCS", [RIGA_DDT, RIGA_SENZA_IMPORTO])

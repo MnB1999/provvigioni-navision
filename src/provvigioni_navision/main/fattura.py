@@ -71,7 +71,7 @@ def _leggi_generale(ws) -> tuple[str, str, date]:
         if chiave is not None:
             valori[str(chiave).strip()] = valore
 
-    richieste = ("Nr.", "Cliente", "Data documento", "Cod. agente")
+    richieste = ("Nr.", "Cliente", "Data documento")
     mancanti = [c for c in richieste if valori.get(c) is None or str(valori[c]).strip() == ""]
     if mancanti:
         raise FatturaNonValida(f"valori mancanti nel foglio '{FOGLIO_GENERALE}': {', '.join(mancanti)}")

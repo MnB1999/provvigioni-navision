@@ -21,7 +21,7 @@ from pathlib import Path
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Border, Font, Side
 
-from classificazione import VOCE_ADEGUAMENTO_FGAS, VOCI, VoceNonClassificabile, voce_per
+from config.classificazione import VOCE_ADEGUAMENTO_FGAS, VOCI, VoceNonClassificabile, voce_per
 from fattura import Fattura
 
 CARATTERE_TITOLO = Font(name="Arial", size=12, bold=True)

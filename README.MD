@@ -22,7 +22,7 @@ Il programma funziona sia con:
 
 file Excel scaricati direttamente da Navision tramite Citrix;
 
-file .xlsx copiati o spostati manualmente nella cartella INBOX.
+file .xlsx copiati o spostati manualmente nella cartella di INBOX.
 
 
 Questo strumento è utilizzato da colleghi non tecnici, dunque era importante che fosse facile da installare e utilizzare.

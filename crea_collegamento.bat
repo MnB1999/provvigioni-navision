@@ -1,5 +1,5 @@
 @echo off
-rem Da eseguire UNA SOLA VOLTA su ogni PC (di nuovo solo se sposti la cartella del progetto).
+rem Da eseguire UNA SOLA VOLTA su ogni PC
 rem Crea sul desktop il collegamento "Generatore Excel provvigioni"
 
 set "PROGETTO=%~dp0"

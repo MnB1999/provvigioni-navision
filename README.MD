@@ -32,7 +32,7 @@ Da quel momento l'app si avvia con doppio clic sul collegamento come ogni altra 
 
 | Prima                                    | Dopo                                |
 |------------------------------------------|-------------------------------------|
-| ![Lavoro manuale](docs/assets/prima.gif) | ![Automatico](docs/assets/dopo.gif) |
+| ![Lavoro manuale](docs/assets/Prima.gif) | ![Automatico](docs/assets/Dopo.gif) |
 
 
 ## Crediti
